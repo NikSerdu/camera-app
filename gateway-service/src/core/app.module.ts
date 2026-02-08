@@ -1,0 +1,26 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/modules/auth/auth.module';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { JwtStrategy } from 'src/shared/strategies/jwt.strategy';
+import { CameraModule } from '@/modules/camera/camera.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV}.local`,
+        `.env.${process.env.NODE_ENV}`,
+        '.env',
+      ],
+    }),
+    AuthModule,
+    CameraModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService, JwtStrategy],
+})
+export class AppModule {}
