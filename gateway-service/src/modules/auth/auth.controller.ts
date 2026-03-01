@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -13,6 +14,8 @@ import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { LoginRequest, LoginResponse, RegisterResponse } from './dto';
 import type { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Auth, CurrentUser } from '@/shared';
+import { GetUserResponse } from './dto/responses/getUser.res';
 
 @Controller('auth')
 export class AuthController {
@@ -62,6 +65,15 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const { accessToken, refreshToken } = await this.auth.call('login', body);
+    console.log(accessToken, refreshToken);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
+      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: this.config.getOrThrow('NODE_ENV') !== 'development',
@@ -69,9 +81,7 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    return {
-      accessToken,
-    };
+    return { accessToken };
   }
 
   @ApiOperation({
@@ -85,11 +95,20 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshToken = req.cookies?.refreshToken;
+    console.log(refreshToken);
 
     const { accessToken, refreshToken: newRefreshToken } = await this.auth.call(
       'refresh',
       { refreshToken },
     );
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
+      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
@@ -118,5 +137,20 @@ export class AuthController {
     });
 
     return { ok: true };
+  }
+
+  @ApiOperation({
+    summary: 'Get current user by token',
+  })
+  @ApiOkResponse({
+    type: GetUserResponse,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Auth()
+  @Get('getUser')
+  async getUser(@CurrentUser() userId: string) {
+    console.log(userId);
+
+    return await this.auth.call('getUserById', { userId });
   }
 }

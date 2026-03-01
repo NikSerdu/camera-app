@@ -23,13 +23,21 @@ async function bootstrap() {
     .setTitle('EyeNest API')
     .setDescription('API Gateway for EyeNest microservices')
     .setVersion('1.0.0')
-    .addBearerAuth()
+    .addCookieAuth('accessToken', {
+      type: 'apiKey',
+    })
+    .addCookieAuth('refreshToken', {
+      type: 'apiKey',
+    })
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup('/docs', app, swaggerDocument, {
     yamlDocumentUrl: '/openapi.yaml',
+    swaggerOptions: {
+      withCredentials: true,
+    },
   });
 
   const port = config.getOrThrow<number>('HTTP_PORT');

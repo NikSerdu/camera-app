@@ -8,6 +8,10 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { PROTO_PATHS } from '@eyenest/contracts';
 import { CreateLocationUseCase } from '@/application/useCases/createLocation.useCase';
+import { LinkCameraUseCase } from '@/application/useCases/linkCamera.useCase';
+import { ICameraService } from '@/domain/services/camera.service';
+import { CameraService } from '@/infrastructure/services/camera.service';
+import { AddCameraUseCase } from '@/application/useCases/addCamera.useCase';
 
 @Module({
   imports: [
@@ -32,9 +36,15 @@ import { CreateLocationUseCase } from '@/application/useCases/createLocation.use
       provide: ICameraRepository,
       useClass: CameraRepository,
     },
+    {
+      provide: ICameraService,
+      useClass: CameraService,
+    },
     AuthClientGrpc,
     GetLocationsByUserIdUseCase,
     CreateLocationUseCase,
+    LinkCameraUseCase,
+    AddCameraUseCase,
   ],
 })
 export class CameraModule {}

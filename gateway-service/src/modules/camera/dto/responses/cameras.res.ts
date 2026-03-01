@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CameraSettingsDto {
+export class CameraSettingsResponse {
   @ApiProperty()
   id: string;
 
@@ -8,15 +8,15 @@ export class CameraSettingsDto {
   aiStatus: string;
 }
 
-export class CameraDto {
+export class CameraResponse {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
   name: string;
 
-  @ApiProperty({ type: CameraSettingsDto, nullable: true })
-  cameraSettings: CameraSettingsDto | null;
+  @ApiProperty({ type: CameraSettingsResponse, nullable: true })
+  cameraSettings: CameraSettingsResponse | null;
 }
 
 export class LocationResponse {
@@ -29,6 +29,16 @@ export class LocationResponse {
   @ApiProperty()
   userId: string;
 
-  @ApiProperty({ type: [CameraDto] })
-  cameras: CameraDto[];
+  @ApiProperty({ type: [CameraResponse] })
+  cameras: CameraResponse[];
+}
+
+export class AddCameraResponse {
+  @ApiProperty()
+  token: string;
+}
+
+export class LinkCameraResponse {
+  @ApiProperty()
+  accessToken: string;
 }

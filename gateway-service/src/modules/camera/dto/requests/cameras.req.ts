@@ -7,3 +7,22 @@ export class CreateLocationRequest {
   @IsNotEmpty()
   name: string;
 }
+
+export class AddCameraRequest {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  locationId: string;
+}
+
+export class LinkCameraRequest {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}

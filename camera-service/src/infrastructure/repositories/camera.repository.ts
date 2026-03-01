@@ -1,8 +1,11 @@
-import { ICameraRepository, LocationEntity } from '@/domain';
+import { CameraEntity, ICameraRepository, LocationEntity } from '@/domain';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LocationWithCameras } from '@/shared';
-import { CreateLocationRequest } from '@eyenest/contracts/gen/ts/camera';
+import { GetCameraByNameAndLocation, LocationWithCameras } from '@/shared';
+import {
+  AddCameraRequest,
+  CreateLocationRequest,
+} from '@eyenest/contracts/gen/ts/camera';
 
 @Injectable()
 export class CameraRepository implements ICameraRepository {
@@ -32,5 +35,40 @@ export class CameraRepository implements ICameraRepository {
       userId: location.userId,
       cameras: [],
     };
+  }
+
+  async addCamera(
+    data: Omit<AddCameraRequest, 'userId'>,
+  ): Promise<CameraEntity> {
+    return await this.prisma.camera.create({
+      data: {
+        name: data.name,
+        location: {
+          connect: { id: data.locationId },
+        },
+        cameraSettings: {
+          create: {
+            aiStatus: 'OFF',
+            recordingStatus: 'OFF',
+          },
+        },
+      },
+      include: {
+        cameraSettings: true,
+      },
+    });
+  }
+  async getCameraByNameAndLocation(
+    data: GetCameraByNameAndLocation,
+  ): Promise<CameraEntity | null> {
+    return await this.prisma.camera.findUnique({
+      where: {
+        name: data.cameraName,
+        locationId: data.locationId,
+      },
+      include: {
+        cameraSettings: true,
+      },
+    });
   }
 }

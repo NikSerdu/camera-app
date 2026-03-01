@@ -5,16 +5,27 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
 } from '@nestjs/common';
 import { CameraClientGrpc } from './camera.grpc';
-import { ApiOperation, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { LocationResponse } from './dto';
+import { ApiOperation, ApiOkResponse, ApiCookieAuth } from '@nestjs/swagger';
+import { AddCameraResponse, LinkCameraResponse, LocationResponse } from './dto';
 import { Auth, CurrentUser } from '@/shared';
-import { CreateLocationRequest } from './dto/requests/cameras.req';
-
+import {
+  AddCameraRequest,
+  CreateLocationRequest,
+  LinkCameraRequest,
+} from './dto/requests/cameras.req';
+import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 @Controller('camera')
 export class CameraController {
-  constructor(private readonly camera: CameraClientGrpc) {}
+  constructor(
+    private readonly camera: CameraClientGrpc,
+    private readonly config: ConfigService,
+  ) {}
+
+  @ApiCookieAuth('accessToken')
   @ApiOperation({
     summary: 'Get all user cameras grouped by location',
   })
@@ -22,7 +33,6 @@ export class CameraController {
     type: LocationResponse,
     isArray: true,
   })
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @Auth()
   @Get('locations')
@@ -30,17 +40,16 @@ export class CameraController {
     const res = await this.camera.call('getLocationsByUserId', {
       userId,
     });
-    console.log(JSON.stringify(res, null, 2));
     return Array.isArray(res.locations) ? res.locations : res;
   }
 
+  @ApiCookieAuth('accessToken')
   @ApiOperation({
     summary: 'Create location',
   })
   @ApiOkResponse({
     type: LocationResponse,
   })
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @Auth()
   @Post('locations')
@@ -52,5 +61,54 @@ export class CameraController {
       userId,
       name: body.name,
     });
+  }
+
+  @ApiCookieAuth('accessToken')
+  @ApiOperation({
+    summary: 'Add camera to location',
+  })
+  @ApiOkResponse({
+    type: AddCameraResponse,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Auth()
+  @Post('addCamera')
+  async addCamera(
+    @CurrentUser() userId: string,
+    @Body() body: AddCameraRequest,
+  ) {
+    return await this.camera.call('addCamera', {
+      userId,
+      ...body,
+    });
+  }
+
+  // @ApiCookieAuth('accessToken')
+  @ApiOperation({
+    summary: 'Link camera to location',
+  })
+  @ApiOkResponse({
+    type: LinkCameraResponse,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('linkCamera')
+  async linkCamera(
+    @Body() body: LinkCameraRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, refreshToken } = await this.camera.call(
+      'linkCamera',
+      body,
+    );
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
+      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    return {
+      accessToken,
+    };
   }
 }
