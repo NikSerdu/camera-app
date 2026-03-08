@@ -1,0 +1,50 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "./generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Location {
+  id String @id @default(nanoid())
+
+  name   String
+  userId String @map("user_id")
+
+  cameras Camera[]
+
+  @@unique([userId, name])
+  @@map("locations")
+}
+
+model Camera {
+  id String @id @default(nanoid())
+
+  name       String   @unique
+  locationId String   @map("location_id")
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  cameraSettings CameraSettings?
+
+  @@map("cameras")
+}
+
+model CameraSettings {
+  id String @id @default(nanoid())
+
+  aiStatus        Status @default(OFF) @map("ai_status")
+  recordingStatus Status @default(OFF) @map("recording_status")
+
+  camera   Camera @relation(fields: [cameraId], references: [id], onDelete: Cascade)
+  cameraId String @unique @map("camera_id")
+
+  @@map("camera_settings")
+}
+
+enum Status {
+  ON
+  OFF
+}
