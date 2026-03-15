@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { JwtStrategy } from 'src/shared/strategies/jwt.strategy';
 import { CameraModule } from '@/modules/camera/camera.module';
 import { LiveKitModule } from '@/modules/live_kit/live_kit.module';
+import { CameraOwnerGuard } from '@/shared/guards/camera-owner.guard';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { LiveKitModule } from '@/modules/live_kit/live_kit.module';
     LiveKitModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [AppService, JwtStrategy, CameraOwnerGuard],
 })
 export class AppModule {}
