@@ -23,7 +23,7 @@ model Location {
 model Camera {
   id String @id @default(nanoid())
 
-  name       String   @unique
+  name       String
   locationId String   @map("location_id")
   location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 

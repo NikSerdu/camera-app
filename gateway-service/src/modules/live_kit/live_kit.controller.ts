@@ -9,7 +9,7 @@ import {
   GetLiveKitCameraTokenResponse,
   GetLiveKitViewerTokenResponse as GetLiveKitViewerTokenResponseDto,
 } from './dto/responses/cameras.res';
-import { Auth, Current } from '@/shared';
+import { Auth, CameraOwner, Current } from '@/shared';
 import { GetLiveKitViewerTokenResponse } from '@eyenest/contracts/gen/ts/camera';
 import { CameraClientGrpc } from '@/core/grpc-clients/camera.grpc';
 @Controller('live_kit')
@@ -30,7 +30,7 @@ export class LiveKitController {
     required: true,
   })
   @HttpCode(HttpStatus.OK)
-  @Auth('user')
+  @CameraOwner()
   @Get('getLiveKitViewerToken')
   async getLiveKitViewerToken(
     @Current('user') userId: string,
