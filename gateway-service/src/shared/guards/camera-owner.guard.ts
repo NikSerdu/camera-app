@@ -16,7 +16,8 @@ export class CameraOwnerGuard implements CanActivate {
 
     const user = request.user;
     const body = request.body ?? {};
-    const cameraId: string | undefined = body.cameraId;
+    const cameraId: string | undefined =
+      body.cameraId || request.query.cameraId;
 
     if (!cameraId) {
       return true;
