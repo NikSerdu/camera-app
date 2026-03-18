@@ -1,4 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiOperation,
   ApiOkResponse,
@@ -12,9 +21,18 @@ import {
 import { Auth, CameraOwner, Current } from '@/shared';
 import { GetLiveKitViewerTokenResponse } from '@eyenest/contracts/gen/ts/camera';
 import { CameraClientGrpc } from '@/core/grpc-clients/camera.grpc';
+import { WebhookService } from './services/webhook.service';
+
+type RawBodyRequest = Request & {
+  rawBody?: Buffer;
+};
+
 @Controller('live_kit')
 export class LiveKitController {
-  constructor(private readonly camera: CameraClientGrpc) {}
+  constructor(
+    private readonly camera: CameraClientGrpc,
+    private readonly webhookService: WebhookService,
+  ) {}
 
   @ApiCookieAuth('accessToken')
   @ApiOperation({
@@ -60,10 +78,14 @@ export class LiveKitController {
     @Current('camera') cameraId: string,
     @Query('roomId') roomId: string,
   ): Promise<GetLiveKitCameraTokenResponse> {
-    console.log(cameraId, roomId);
     return await this.camera.call('getLiveKitCameraToken', {
       cameraId,
       roomId,
     });
+  }
+
+  @Post('webhook')
+  async handleWebhook(@Req() req: RawBodyRequest) {
+    return await this.webhookService.handleWebhook(req);
   }
 }

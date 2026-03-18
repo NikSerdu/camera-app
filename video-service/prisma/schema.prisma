@@ -1,0 +1,32 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "./generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Egress {
+  id String @id @default(nanoid())
+
+  roomId   String @unique
+  egressId String
+}
+
+model VideoFile {
+  id String @id @default(nanoid())
+
+  cameraId     String
+  playlistName String
+  status       VideoFileStatus @default(RECORDING)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  finishedAt   DateTime?
+}
+
+enum VideoFileStatus {
+  RECORDING
+  FINISHED
+}

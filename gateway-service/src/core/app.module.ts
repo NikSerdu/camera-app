@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { JwtStrategy } from 'src/shared/strategies/jwt.strategy';
 import { CameraModule } from '@/modules/camera/camera.module';
 import { LiveKitModule } from '@/modules/live_kit/live_kit.module';
+import { RmqModule } from './modules/rmq/rmq.module';
+import { VideoModule } from '@/modules/video/video.module';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { LiveKitModule } from '@/modules/live_kit/live_kit.module';
     }),
     AuthModule,
     CameraModule,
+    VideoModule,
     LiveKitModule,
+    RmqModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

@@ -7,9 +7,10 @@ import { AppModule } from './core/app.module';
 import { getCorsConfig, getValidationPipeConfig } from './core/config';
 import { GrpcExceptionFilter } from './shared/filters';
 import cookieParser from 'cookie-parser';
+import express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.use(express.raw({ type: 'application/webhook+json' }));
   const config = app.get(ConfigService);
   const logger = new Logger();
   app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')));
