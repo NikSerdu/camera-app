@@ -29,11 +29,7 @@ export class DeleteRecordingUseCase {
         details: 'Запись не найдена!',
       });
     }
-    const egress = await this.egressRepository.getEgress(recs.cameraId);
-    if (egress) {
-      await this.egressRepository.deleteEgress(recs.cameraId);
-      await this.videoService.stopRecording(egress.egressId);
-    }
+
     const key = recs.playlistName.split('/').slice(0, -1).join('/');
     await this.s3Service.deleteFolder(key);
     return {

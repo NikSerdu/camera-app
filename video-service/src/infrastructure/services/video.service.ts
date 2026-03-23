@@ -19,20 +19,27 @@ export class VideoService implements IVideoService {
   private readonly livekitUrl: string;
   private readonly apiKey: string;
   private readonly apiSecret: string;
+  private readonly egressTemplateUrl?: string;
   constructor(private readonly configService: ConfigService) {
     this.livekitUrl = this.configService.getOrThrow('LIVEKIT_URL');
     this.apiKey = this.configService.getOrThrow('LIVEKIT_API_KEY');
     this.apiSecret = this.configService.getOrThrow('LIVEKIT_API_SECRET');
+    this.egressTemplateUrl = this.configService.get<string>(
+      'EGRESS_TEMPLATE_URL',
+    );
     this.egressClient = new EgressClient(
       this.livekitUrl,
       this.apiKey,
       this.apiSecret,
     );
   }
-  async startRecording(data: StartRecordingRequest): Promise<EgressInfo> {
+  async startRecording(
+    data: StartRecordingRequest,
+    date: string,
+  ): Promise<EgressInfo> {
     const outputs = {
       segments: new SegmentedFileOutput({
-        filenamePrefix: '{room_name}/{time}/',
+        filenamePrefix: `{room_name}/${date}/`,
         playlistName: 'playlist.m3u8',
         livePlaylistName: 'playlist-live.m3u8',
         segmentDuration: 5,
@@ -50,6 +57,7 @@ export class VideoService implements IVideoService {
     };
     const options: RoomCompositeOptions = {
       layout: 'speaker',
+      customBaseUrl: this.configService.getOrThrow('EGRESS_TEMPLATE_URL'),
       encodingOptions: new EncodingOptions({
         width: 640,
         height: 360,

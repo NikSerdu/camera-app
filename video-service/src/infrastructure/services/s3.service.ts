@@ -55,7 +55,6 @@ export class S3Service implements IS3Service {
       Bucket: this.configService.getOrThrow('MINIO_BUCKET'),
       Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) },
     };
-
     await this.s3Client.send(new DeleteObjectsCommand(deleteParams));
 
     if (listedObjects.IsTruncated) {

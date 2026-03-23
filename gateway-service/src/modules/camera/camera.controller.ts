@@ -192,6 +192,17 @@ export class CameraController {
   }
 
   @ApiOperation({
+    summary: 'Reset camera link',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Auth('camera')
+  @Post('resetCameraLink')
+  async resetCameraLink(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+  }
+
+  @ApiOperation({
     summary: 'Get camera id by access token',
   })
   @ApiOkResponse({

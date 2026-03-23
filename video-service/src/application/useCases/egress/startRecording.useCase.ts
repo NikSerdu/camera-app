@@ -39,7 +39,10 @@ export class StartRecordingUseCase {
           details: 'Запись уже запущена',
         });
       }
-      const egress = await this.videoService.startRecording(data);
+      const egress = await this.videoService.startRecording(
+        data,
+        this.getDate(),
+      );
       await this.videoRepository.addVideoFile({
         cameraId: data.roomId,
         playlistName: egress.segmentResults[0].playlistName,
@@ -53,10 +56,27 @@ export class StartRecordingUseCase {
         egressId: egress.egressId,
       };
     } catch (error) {
+      console.log(error);
       throw new RpcException({
         code: RpcStatus.INTERNAL,
         details: 'Ошибка при запуске записи',
       });
     }
+  }
+
+  private getDate(): string {
+    const now = new Date();
+
+    const formatted =
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      'T' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
+    return formatted;
   }
 }
