@@ -24,6 +24,12 @@ export class GetLiveKitCameraTokenUseCase {
         details: 'Вы не имеете доступа к этой комнате!',
       });
     }
+    if (await this.videoService.checkCameraOnline(data.cameraId)) {
+      throw new RpcException({
+        code: RpcStatus.UNAUTHENTICATED,
+        details: 'Камера уже в сети!',
+      });
+    }
     return await this.videoService.getLiveKitCameraToken(data);
   }
 }

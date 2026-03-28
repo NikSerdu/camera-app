@@ -17,6 +17,9 @@ importers:
       '@grpc/grpc-js':
         specifier: ^1.14.3
         version: 1.14.3
+      '@livekit/protocol':
+        specifier: ^1.43.1
+        version: 1.45.0
       '@nestjs/common':
         specifier: ^11.0.1
         version: 11.1.11(reflect-metadata@0.2.2)(rxjs@7.8.2)

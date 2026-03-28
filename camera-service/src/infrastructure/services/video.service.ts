@@ -4,15 +4,20 @@ import {
   GetLiveKitViewerTokenRequest,
   GetLiveKitViewerTokenResponse,
 } from '@eyenest/contracts/gen/ts/camera';
+import { TrackSource } from '@livekit/protocol';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { IVideoService } from '@/domain/services/video.service';
 import { AccessToken } from 'livekit-server-sdk';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class VideoService implements IVideoService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly redis: RedisService,
+  ) {}
   async getLiveKitViewerToken(
     data: GetLiveKitViewerTokenRequest,
   ): Promise<GetLiveKitViewerTokenResponse> {
@@ -28,6 +33,7 @@ export class VideoService implements IVideoService {
       room: data.roomId,
       roomJoin: true,
       canSubscribe: true,
+      canPublishSources: [TrackSource.MICROPHONE],
     });
     const token = await at.toJwt();
     return { token };
@@ -48,6 +54,12 @@ export class VideoService implements IVideoService {
       canPublish: true,
     });
     const token = await at.toJwt();
+    await this.redis.set(`online:camera:${data.cameraId}`, 'true');
     return { token };
+  }
+
+  async checkCameraOnline(cameraId: string): Promise<boolean> {
+    const online = await this.redis.get(`online:camera:${cameraId}`);
+    return online === 'true';
   }
 }

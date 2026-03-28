@@ -12,4 +12,5 @@ export abstract class IVideoService {
   abstract getLiveKitCameraToken(
     data: GetLiveKitCameraTokenRequest,
   ): Promise<GetLiveKitCameraTokenResponse>;
+  abstract checkCameraOnline(cameraId: string): Promise<boolean>;
 }
