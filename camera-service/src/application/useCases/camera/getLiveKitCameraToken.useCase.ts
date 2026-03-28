@@ -1,4 +1,5 @@
 import { ICameraRepository } from '@/domain';
+import { ICameraService } from '@/domain/services/camera.service';
 import { IVideoService } from '@/domain/services/video.service';
 import { RpcStatus } from '@eyenest/common';
 import {
@@ -12,6 +13,7 @@ import { RpcException } from '@nestjs/microservices';
 export class GetLiveKitCameraTokenUseCase {
   constructor(
     private readonly cameraRepository: ICameraRepository,
+    private readonly cameraService: ICameraService,
     private readonly videoService: IVideoService,
   ) {}
 
@@ -24,7 +26,7 @@ export class GetLiveKitCameraTokenUseCase {
         details: 'Вы не имеете доступа к этой комнате!',
       });
     }
-    if (await this.videoService.checkCameraOnline(data.cameraId)) {
+    if (await this.cameraService.checkCameraOnline(data.cameraId)) {
       throw new RpcException({
         code: RpcStatus.UNAUTHENTICATED,
         details: 'Камера уже в сети!',

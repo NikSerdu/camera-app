@@ -54,12 +54,6 @@ export class VideoService implements IVideoService {
       canPublish: true,
     });
     const token = await at.toJwt();
-    await this.redis.set(`online:camera:${data.cameraId}`, 'true');
     return { token };
-  }
-
-  async checkCameraOnline(cameraId: string): Promise<boolean> {
-    const online = await this.redis.get(`online:camera:${cameraId}`);
-    return online === 'true';
   }
 }

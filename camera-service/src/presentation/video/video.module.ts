@@ -6,8 +6,12 @@ import { IVideoService } from '@/domain/services/video.service';
 import { VideoService } from '@/infrastructure/services/video.service';
 import { GetLiveKitViewerTokenUseCase } from '@/application/useCases/live-kit/getLiveKitViewerToken.useCase';
 import { GetLiveKitCameraTokenUseCase } from '@/application/useCases/camera/getLiveKitCameraToken.useCase';
+import { ICameraService } from '@/domain/services/camera.service';
+import { CameraService } from '@/infrastructure/services/camera.service';
+import { EventEmitterModule } from '@eyenest/common';
+
 @Module({
-  imports: [],
+  imports: [EventEmitterModule.register('RMQ_CLIENT')],
   controllers: [VideoController],
   providers: [
     {
@@ -17,6 +21,10 @@ import { GetLiveKitCameraTokenUseCase } from '@/application/useCases/camera/getL
     {
       provide: IVideoService,
       useClass: VideoService,
+    },
+    {
+      provide: ICameraService,
+      useClass: CameraService,
     },
     {
       provide: ICameraRepository,

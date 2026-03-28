@@ -51,6 +51,7 @@ import { DeleteLocationUseCase } from '@/application/useCases/camera/deleteLocat
       provide: ICameraService,
       useClass: CameraService,
     },
+
     AuthClientGrpc,
     GetLocationsByUserIdUseCase,
     CreateLocationUseCase,
