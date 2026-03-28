@@ -24,8 +24,17 @@ export class BotUpdate {
   // Старт бота
   @Hears(/^\/start$/i)
   async start(@Ctx() ctx: TelegrafContext) {
+    const name = ctx.from?.first_name?.trim();
+    const greeting = name ? `Привет, ${name}!` : 'Привет!';
+    const welcome =
+      `${greeting} 👋\n\n` +
+      'Я бот уведомлений EyeNest: сюда приходят оповещения с камер, когда всё настроено в приложении.\n\n' +
+      'Чтобы связать этот чат с аккаунтом, нажми «Привязать» и вставь одноразовый токен из приложения. ' +
+      '«Отвязать» отключит уведомления для этого чата.\n\n' +
+      'Выбери действие:';
+
     await ctx.reply(
-      'Нажми кнопку ниже, чтобы привязать или отвязать аккаунт:',
+      welcome,
       Markup.inlineKeyboard([
         [Markup.button.callback('🔗 Привязать аккаунт', 'link_account')],
         [Markup.button.callback('🔓 Отвязать аккаунт', 'unlink_account')],
@@ -79,13 +88,31 @@ export class BotUpdate {
     if (!ctx.session?.waitingForToken) return;
 
     const token = ctx.text?.trim();
+    if (!token) return;
+    if (token.startsWith('/')) return;
 
-    const result = await this.linkChatIdUseCase.execute(token, ctx.chat?.id);
-    if (result) {
+    try {
+      const result = await this.linkChatIdUseCase.execute(token, ctx.chat?.id);
       await ctx.reply(result);
-      return;
+      if (result.startsWith('✅')) {
+        ctx.session.waitingForToken = false;
+      }
+    } catch (err) {
+      if (err instanceof RpcException) {
+        const error = err.getError() as { code?: number; details?: string };
+        if (error.code === RpcStatus.NOT_FOUND) {
+          await ctx.reply(
+            '❌ Аккаунт не найден. Войди в приложение под своим пользователем и снова сгенерируй код привязки.',
+          );
+          return;
+        }
+        await ctx.reply(
+          error.details ??
+            '❌ Не удалось привязать аккаунт. Попробуй ещё раз или запроси новый код в приложении.',
+        );
+        return;
+      }
+      throw err;
     }
-
-    ctx.session.waitingForToken = false;
   }
 }

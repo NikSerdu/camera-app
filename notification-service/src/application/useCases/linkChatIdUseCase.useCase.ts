@@ -18,7 +18,10 @@ export class LinkChatIdUseCase {
     }
     const userId = await this.telegramService.getUserIdByToken(token);
     if (!userId) {
-      return '❌ Токен неверный или истек срок действия';
+      return (
+        '❌ Код неверный или срок его действия истёк.\n' +
+        'Запроси новый код в приложении и отправь его сюда ещё раз.'
+      );
     }
     const userSettings =
       await this.userService.getUserNotificationSettings(userId);

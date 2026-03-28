@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { ClientGrpc } from '@nestjs/microservices';
+import { RpcException, type ClientGrpc } from '@nestjs/microservices';
 import type {
   AuthServiceClient,
   GetUserByIdResponse,
@@ -8,7 +8,7 @@ import type {
   UpdateUserNotificationSettingsRequest,
   UpdateUserNotificationSettingsResponse,
 } from '@eyenest/contracts/gen/ts/auth';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, type Observable } from 'rxjs';
 
 @Injectable()
 export class AuthClientGrpc {
@@ -25,34 +25,54 @@ export class AuthClientGrpc {
     return this.authService;
   }
 
+  /** gRPC-клиент кидает обычный Error с полями code/details, а не Nest RpcException */
+  private async fromGrpc<T>(call: Observable<T>): Promise<T> {
+    try {
+      return await firstValueFrom(call);
+    } catch (e) {
+      if (this.isGrpcStatusError(e)) {
+        throw new RpcException({
+          code: e.code,
+          details: e.details ?? '',
+        });
+      }
+      throw e;
+    }
+  }
+
+  private isGrpcStatusError(e: unknown): e is { code: number; details?: string } {
+    return (
+      typeof e === 'object' &&
+      e !== null &&
+      'code' in e &&
+      typeof (e as { code: unknown }).code === 'number'
+    );
+  }
+
   async getUserNotificationSettings(
     userId: string,
   ): Promise<GetUserNotificationSettingsResponse> {
-    const response = await firstValueFrom(
+    return this.fromGrpc(
       this.service.getUserNotificationSettings({ userId }),
     );
-    return response;
   }
 
   async getUserById(userId: string): Promise<GetUserByIdResponse> {
-    const response = await firstValueFrom(this.service.getUserById({ userId }));
-    return response;
+    return this.fromGrpc(this.service.getUserById({ userId }));
   }
 
   async updateUserNotificationSettings(
     data: UpdateUserNotificationSettingsRequest,
   ): Promise<UpdateUserNotificationSettingsResponse> {
-    const response = await firstValueFrom(
+    return this.fromGrpc(
       this.service.updateUserNotificationSettings(data),
     );
-    return response;
   }
   async getUserIdByTelegramChatId(
     telegramChatId: string,
   ): Promise<GetUserIdByTelegramChatIdResponse> {
-    const response = await firstValueFrom(
+    return this.fromGrpc(
       this.service.getUserIdByTelegramChatId({ telegramChatId }),
     );
-    return response;
   }
 }
