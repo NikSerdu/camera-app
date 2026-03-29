@@ -37,11 +37,5 @@ export class SendDetectionNotificationUseCase {
         `Обнаружено движение на камере ${camera?.name}`,
       );
     }
-    if (userNotificationSettings.emailEnabled) {
-      await this.emailService.sendNotification(
-        user.email,
-        `Обнаружено движение на камере ${camera?.name}`,
-      );
-    }
   }
 }

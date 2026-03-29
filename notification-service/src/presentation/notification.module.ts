@@ -22,6 +22,7 @@ import { GetLinkTokenUseCase } from '@/application/useCases/getLinkTokenUseCase.
 import { UnlinkTelegramUseCase } from '@/application/useCases/unlinkTelegram.useCase';
 import { BotUpdate } from './bot.update';
 import { session } from 'telegraf';
+import { SendEmailUseCase } from '@/application/useCases/sendEmailUseCase.useCase';
 @Module({
   imports: [
     RedisModule,
@@ -84,6 +85,7 @@ import { session } from 'telegraf';
     LinkChatIdUseCase,
     GetLinkTokenUseCase,
     UnlinkTelegramUseCase,
+    SendEmailUseCase,
     BotUpdate,
   ],
 })

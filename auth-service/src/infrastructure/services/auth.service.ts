@@ -4,12 +4,16 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import * as argon2 from 'argon2'
+import { RedisService } from '../redis/redis.service'
+import { RpcStatus } from '@eyenest/common'
+import { RpcException } from '@nestjs/microservices'
 
 @Injectable()
 export class AuthService implements IAuthService {
 	constructor(
 		private readonly jwt: JwtService,
 		private readonly config: ConfigService,
+		private readonly redis: RedisService,
 	) {}
 	async generateTokens(userId: string): Promise<ITokens> {
 		const accessToken = await this.jwt.signAsync({
@@ -55,5 +59,23 @@ export class AuthService implements IAuthService {
 				userId: null,
 			}
 		}
+	}
+	async generateOtpCode(user: string): Promise<string> {
+		const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+		await this.redis.set(`otp:${otpCode}`, user, 'EX', 60 * 5)
+		return otpCode
+	}
+	async getUserByOtpCode(code: string): Promise<string> {
+		const user = await this.redis.get(`otp:${code}`)
+		console.log(user)
+
+		if (!user) {
+			throw new RpcException({
+				code: RpcStatus.NOT_FOUND,
+				details: 'Код не найден',
+			})
+		}
+		await this.redis.del(`otp:${code}`)
+		return user
 	}
 }

@@ -4,12 +4,14 @@ import { RegisterRequest } from '@eyenest/contracts/gen/ts/auth'
 import { RpcException } from '@nestjs/microservices'
 import { RpcStatus } from '@eyenest/common'
 import { Injectable } from '@nestjs/common'
+import { IEmailService } from '@/domain/services/email.service'
 
 @Injectable()
 export class RegisterUserUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly authService: IAuthService,
+		private readonly emailService: IEmailService,
 	) {}
 
 	async execute(data: RegisterRequest) {
@@ -23,16 +25,11 @@ export class RegisterUserUseCase {
 			})
 		}
 		const hashedPassword = await this.authService.hashPassword(data.password)
-		const user = await this.userRepository.register({
-			...data,
-			password: hashedPassword,
-		})
-		if (user) {
-			return await this.authService.generateTokens(user.id)
-		}
-		throw new RpcException({
-			code: RpcStatus.UNKNOWN,
-			details: 'Что-то пошло не так...',
-		})
+
+		const otpCode = await this.authService.generateOtpCode(
+			JSON.stringify({ email: data.email, password: hashedPassword }),
+		)
+		await this.emailService.sendOtpCode(data.email, otpCode)
+		return { success: true }
 	}
 }

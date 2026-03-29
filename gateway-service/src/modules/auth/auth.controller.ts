@@ -13,6 +13,8 @@ import { AuthClientGrpc } from './auth.grpc';
 import { RegisterRequest } from './dto/requests/register.req';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import {
+  CheckOtpRequest,
+  CheckOtpResponse,
   GetUserNotificationSettingsResponse,
   LoginRequest,
   LoginResponse,
@@ -39,31 +41,8 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(
-    @Body() body: RegisterRequest,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken } = await this.auth.call(
-      'register',
-      body,
-    );
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
-      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
-      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    return {
-      accessToken,
-    };
+  async register(@Body() body: RegisterRequest) {
+    return await this.auth.call('register', body);
   }
 
   @ApiOperation({
@@ -74,11 +53,26 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(
-    @Body() body: LoginRequest,
+  async login(@Body() body: LoginRequest) {
+    return await this.auth.call('login', body);
+  }
+
+  @ApiOperation({
+    summary: 'Check OTP code',
+  })
+  @ApiOkResponse({
+    type: CheckOtpResponse,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('checkOtp')
+  async checkOtp(
+    @Body() body: CheckOtpRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.auth.call('login', body);
+    const { accessToken, refreshToken } = await this.auth.call(
+      'checkOtpCode',
+      body,
+    );
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,

@@ -8,4 +8,6 @@ export abstract class IAuthService {
 		hashedPassword: string,
 		password: string,
 	): Promise<boolean>
+	abstract generateOtpCode(email: string): Promise<string>
+	abstract getUserByOtpCode(code: string): Promise<string>
 }
