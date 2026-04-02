@@ -56,12 +56,18 @@ importers:
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       livekit-server-sdk:
         specifier: ^2.15.0
         version: 2.15.0
       nestjs-telegraf:
         specifier: ^2.9.1
         version: 2.9.1(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(reflect-metadata@0.2.2)(telegraf@4.16.3)(typescript@5.9.3)
+      passport:
+        specifier: ^0.7.0
+        version: 0.7.0
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1

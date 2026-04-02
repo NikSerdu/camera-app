@@ -36,8 +36,10 @@
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
     "cross-env": "^10.1.0",
+    "express": "^5.2.1",
     "livekit-server-sdk": "^2.15.0",
     "nestjs-telegraf": "^2.9.1",
+    "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
