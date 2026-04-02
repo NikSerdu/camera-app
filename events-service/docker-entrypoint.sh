@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
-npx prisma migrate deploy
+npx prisma db push --skip-generate
 exec node dist/src/main.js
