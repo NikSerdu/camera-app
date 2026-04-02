@@ -1,0 +1,27 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу сервиса относительно compose-файла (из infra/ обычно ../services/events-service).
+
+services:
+  events-service:
+    build:
+      context: ../services/events-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: postgresql://USER:PASSWORD@postgres:5432/DBNAME
+      DATABASE_USER: USER
+      DATABASE_PASSWORD: PASSWORD
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_NAME: DBNAME
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: '50053'
+      RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RMQ_EVENT_QUEUE: event_queue
+      RMQ_EVENTS_EXCHANGE: events
+      CAMERA_GRPC_URL: camera-service:50052
+    ports:
+      - '50053:50053'
+    depends_on:
+      - postgres
+      - rabbitmq

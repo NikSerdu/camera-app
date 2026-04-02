@@ -1,0 +1,36 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу сервиса относительно compose-файла (из infra/ обычно ../services/camera-service).
+
+services:
+  camera-service:
+    build:
+      context: ../services/camera-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: postgresql://USER:PASSWORD@postgres:5432/DBNAME
+      DATABASE_USER: USER
+      DATABASE_PASSWORD: PASSWORD
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_NAME: DBNAME
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: '50052'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_DB: '0'
+      RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RMQ_CAMERA_QUEUE: camera_queue
+      RMQ_EVENTS_EXCHANGE: events
+      JWT_SECRET: replace-me
+      JWT_ACCESS_TOKEN_EXPIRES: 15m
+      JWT_REFRESH_TOKEN_EXPIRES: 7d
+      AUTH_GRPC_URL: auth-service:50051
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+    ports:
+      - '50052:50052'
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq

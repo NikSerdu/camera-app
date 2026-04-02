@@ -1,0 +1,32 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу сервиса относительно compose-файла (из infra/ обычно ../services/gateway-service).
+# Имена хостов gRPC — как в docker-сети (порты должны совпадать с GRPC_PORT backend-сервисов).
+
+services:
+  gateway-service:
+    build:
+      context: ../services/gateway-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      # listen на всех интерфейсах задаётся в коде (app.listen(port)); HTTP_HOST — для строки лога / Swagger URL
+      HTTP_HOST: http://localhost:3000
+      HTTP_PORT: '3000'
+      HTTP_CORS: http://localhost:5173
+      COOKIES_SECRET: replace-me
+      COOKIES_DOMAIN: localhost
+      JWT_SECRET: replace-me
+      RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RMQ_GATEWAY_QUEUE: gateway_queue
+      RMQ_EVENTS_EXCHANGE: events
+      AUTH_GRPC_URL: auth-service:50051
+      CAMERA_GRPC_URL: camera-service:50052
+      VIDEO_GRPC_URL: video-service:50055
+      EVENTS_GRPC_URL: events-service:50053
+      NOTIFICATIONS_GRPC_URL: notification-service:50054
+      LIVEKIT_WEBHOOK_KEY: replace-me
+      LIVEKIT_API_SECRET: secret
+    ports:
+      - '3000:3000'
+    depends_on:
+      - rabbitmq

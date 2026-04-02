@@ -1,0 +1,30 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу сервиса относительно compose-файла (из infra/ обычно ../services/notification-service).
+
+services:
+  notification-service:
+    build:
+      context: ../services/notification-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: '50054'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_DB: '0'
+      RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RMQ_NOTIFICATIONS_QUEUE: notifications_queue
+      RMQ_EVENTS_EXCHANGE: events
+      JWT_SECRET: replace-me
+      JWT_ACCESS_TOKEN_EXPIRES: 15m
+      TELEGRAM_BOT_TOKEN: replace-me
+      MAILTRAP_TOKEN: replace-me
+      MOTION_NOTIFICATION_COOLDOWN_SEC: '60'
+      AUTH_GRPC_URL: auth-service:50051
+      CAMERA_GRPC_URL: camera-service:50052
+    ports:
+      - '50054:50054'
+    depends_on:
+      - redis
+      - rabbitmq

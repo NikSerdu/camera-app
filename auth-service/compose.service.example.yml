@@ -1,0 +1,30 @@
+# Фрагмент для ручного переноса в ваш docker-compose.yml.
+# context: путь к каталогу auth-service относительно compose-файла (из infra/ обычно ../services/auth-service).
+
+services:
+  auth-service:
+    build:
+      context: ../services/auth-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: postgresql://USER:PASSWORD@postgres:5432/DBNAME
+      DATABASE_USER: USER
+      DATABASE_PASSWORD: PASSWORD
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_NAME: DBNAME
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: '50051'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_DB: '0'
+      JWT_SECRET: replace-me
+      JWT_ACCESS_TOKEN_EXPIRES: 15m
+      JWT_REFRESH_TOKEN_EXPIRES: 7d
+      NOTIFICATIONS_GRPC_URL: notifications:50052
+    ports:
+      - '50051:50051'
+    depends_on:
+      - postgres
+      - redis

@@ -1,0 +1,40 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу сервиса относительно compose-файла (из infra/ обычно ../services/video-service).
+
+services:
+  video-service:
+    build:
+      context: ../services/video-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: postgresql://USER:PASSWORD@postgres:5432/DBNAME
+      DATABASE_USER: USER
+      DATABASE_PASSWORD: PASSWORD
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_NAME: DBNAME
+      GRPC_HOST: 0.0.0.0
+      GRPC_PORT: '50055'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_DB: '0'
+      RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RMQ_VIDEO_QUEUE: video_queue
+      RMQ_EVENTS_EXCHANGE: events
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: livekit
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_EXTERNAL_ENDPOINT: http://localhost:9000
+      EGRESS_TEMPLATE_URL: https://example.test/egress-template
+      PRESIGNED_URL_EXPIRES_IN: '3600'
+    ports:
+      - '50055:50055'
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq

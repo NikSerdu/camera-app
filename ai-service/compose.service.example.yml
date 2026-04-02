@@ -1,0 +1,46 @@
+# Фрагмент для ручного переноса в docker-compose.yml.
+# context: путь к каталогу ai-service относительно compose-файла (из infra/ обычно ../services/ai-service).
+# Нужны два процесса: воркер LiveKit Agent и подписчик RabbitMQ — оба из одного образа, разный command.
+
+services:
+  ai-motion-agent:
+    build:
+      context: ../services/ai-service
+      dockerfile: Dockerfile
+    command: ['main.py', 'start']
+    environment:
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+      MOTION_AGENT_NAME: motion-detector
+      MOTION_MIN_AREA: '2500'
+      MOTION_FRAME_COOLDOWN_SEC: '3.0'
+      MOTION_BLUR_SIZE: '21'
+      RMQ_URL: amqp://admin:admin@rabbitmq:5672
+      RMQ_EVENTS_EXCHANGE: eyenest.events
+      RMQ_AI_QUEUE: ai.events.queue
+      MOTION_ON_RK: motion.on
+      MOTION_OFF_RK: motion.off
+      MOTION_DETECTED_RK: motion.detected
+    depends_on:
+      - livekit
+      - rabbitmq
+
+  ai-rmq-orchestrator:
+    build:
+      context: ../services/ai-service
+      dockerfile: Dockerfile
+    command: ['rmq_motion_orchestrator.py']
+    environment:
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+      MOTION_AGENT_NAME: motion-detector
+      RMQ_URL: amqp://admin:admin@rabbitmq:5672
+      RMQ_EVENTS_EXCHANGE: eyenest.events
+      RMQ_AI_QUEUE: ai.events.queue
+      MOTION_ON_RK: motion.on
+      MOTION_OFF_RK: motion.off
+    depends_on:
+      - livekit
+      - rabbitmq

@@ -15,12 +15,15 @@ export class RedisService
   private readonly logger = new Logger(RedisService.name);
 
   public constructor(private readonly configService: ConfigService) {
+    const username = configService.get<string>('REDIS_USER');
+    const password = configService.get<string>('REDIS_PASSWORD');
+
     super({
-      username: configService.getOrThrow('REDIS_USER'),
-      password: configService.getOrThrow('REDIS_PASSWORD'),
+      ...(username ? { username } : {}),
+      ...(password ? { password } : {}),
       host: configService.getOrThrow('REDIS_HOST'),
       port: configService.getOrThrow('REDIS_PORT'),
-      db: parseInt(configService.getOrThrow('REDIS_DB')),
+      db: parseInt(configService.getOrThrow('REDIS_DB'), 10),
       maxRetriesPerRequest: 5,
       enableOfflineQueue: true,
     });
