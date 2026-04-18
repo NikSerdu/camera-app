@@ -28,7 +28,7 @@ export class WebhookService {
       req.get('Authorization'),
     );
     const eventType = event.event;
-
+    console.log(eventType);
     if (
       event.participant?.identity === event.room?.name &&
       event.track?.type === TrackType.VIDEO

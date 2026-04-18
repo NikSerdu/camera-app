@@ -4,7 +4,6 @@ import { GrpcModule } from '@eyenest/common';
 import { VideoClientGrpc } from './video.grpc';
 import { CameraOwnerGuard } from '@/shared/guards/camera-owner.guard';
 import { CameraClientGrpc } from '@/core/grpc-clients/camera.grpc';
-import { StitchedPlaylistService } from './stitched-playlist.service';
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { StitchedPlaylistService } from './stitched-playlist.service';
     VideoClientGrpc,
     CameraClientGrpc,
     CameraOwnerGuard,
-    StitchedPlaylistService,
   ],
 })
 export class VideoModule {}

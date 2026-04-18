@@ -86,6 +86,7 @@ export class LiveKitController {
 
   @Post('webhook')
   async handleWebhook(@Req() req: RawBodyRequest) {
+    console.log(req.body);
     return await this.webhookService.handleWebhook(req);
   }
 }

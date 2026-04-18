@@ -134,8 +134,21 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.cookie('accessToken', '', {
+      httpOnly: true,
+      secure: this.config.getOrThrow('NODE_ENV') !== 'development',
+      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      secure: this.config.get('NODE_ENV') !== 'development',
+      domain: this.config.getOrThrow<string>('COOKIES_DOMAIN'),
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
 
     return { ok: true };
   }

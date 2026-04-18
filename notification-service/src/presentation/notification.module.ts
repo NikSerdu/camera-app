@@ -15,7 +15,6 @@ import { ITelegramService } from '@/domain/services/telegram.service';
 import { TelegramService } from '@/infrastructure/services/telegram.service';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { IEmailService } from '@/domain/services/email.service';
-import { EmailService } from '@/infrastructure/services/email.service';
 import { RedisModule } from '@/infrastructure/redis/redis.module';
 import { LinkChatIdUseCase } from '@/application/useCases/linkChatIdUseCase.useCase';
 import { GetLinkTokenUseCase } from '@/application/useCases/getLinkTokenUseCase.useCase';
@@ -23,9 +22,12 @@ import { UnlinkTelegramUseCase } from '@/application/useCases/unlinkTelegram.use
 import { BotUpdate } from './bot.update';
 import { session } from 'telegraf';
 import { SendEmailUseCase } from '@/application/useCases/sendEmailUseCase.useCase';
+import { MailService } from '@/infrastructure/mail/mail.service';
+import { MailModule } from '@/infrastructure/mail/mail.module';
 @Module({
   imports: [
     RedisModule,
+    MailModule,
     TelegrafModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.getOrThrow('TELEGRAM_BOT_TOKEN'),
@@ -77,7 +79,7 @@ import { SendEmailUseCase } from '@/application/useCases/sendEmailUseCase.useCas
     },
     {
       provide: IEmailService,
-      useClass: EmailService,
+      useClass: MailService,
     },
     AuthClientGrpc,
     CameraClientGrpc,
