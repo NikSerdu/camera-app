@@ -14,3 +14,32 @@ export class DeleteRecordingRequest {
   @IsNotEmpty()
   recordingId: string;
 }
+
+export class GetPlaylistQuery {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  recordingId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  cameraId: string;
+}
+
+export class GetSegmentQuery {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  recordingId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  cameraId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  file: string;
+}

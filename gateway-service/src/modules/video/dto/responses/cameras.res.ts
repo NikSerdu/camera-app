@@ -20,3 +20,8 @@ export enum VideoFileStatus {
   FINISHED = 1,
   UNRECOGNIZED = -1,
 }
+
+export class PresignedUrlResponse {
+  @ApiProperty()
+  url: string;
+}

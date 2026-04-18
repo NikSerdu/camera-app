@@ -32,15 +32,14 @@ export class GetPresignedUrlUseCase {
         details: 'Запись не найдена',
       });
     }
+
     const fileName =
       file.status === VideoFileStatus.FINISHED
         ? file.playlistName
         : this.getLivePlaylistName(file.playlistName);
     const url = await this.s3Service.getPresignedUrl(fileName);
 
-    return {
-      url,
-    };
+    return { url };
   }
 
   private getLivePlaylistName(playlistName: string): string {

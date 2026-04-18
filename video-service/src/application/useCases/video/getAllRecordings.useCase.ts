@@ -17,6 +17,7 @@ export class GetAllRecordingUseCase {
     const recording = recs.map((rec) => ({
       id: rec.id,
       playlistName: rec.playlistName,
+      cameraId: rec.cameraId,
       status: rec.status === PrismaVideoFileStatus.RECORDING ? 0 : 1,
       createdAt: rec.createdAt.toISOString(),
       updatedAt: rec.updatedAt.toISOString(),

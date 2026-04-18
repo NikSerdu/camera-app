@@ -4,6 +4,8 @@ import { GrpcModule } from '@eyenest/common';
 import { VideoClientGrpc } from './video.grpc';
 import { CameraOwnerGuard } from '@/shared/guards/camera-owner.guard';
 import { CameraClientGrpc } from '@/core/grpc-clients/camera.grpc';
+import { RecordingPlaybackService } from './lib/recording-playback.service';
+import { S3Service } from './lib/s3.service';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { CameraClientGrpc } from '@/core/grpc-clients/camera.grpc';
     VideoClientGrpc,
     CameraClientGrpc,
     CameraOwnerGuard,
+    S3Service,
+    RecordingPlaybackService,
   ],
 })
 export class VideoModule {}
